@@ -112,12 +112,28 @@ public class SystemUtil {
      * @return value of the Boolean system property or false
      */
     public static boolean getBooleanSafe(String name) {
+        return getBooleanSafe(name, false);
+    }
+
+    /**
+     * Retrieves a Boolean System property, or returns specified default boolean value if:
+     * <ul>
+     * <li>the property isn't found</li>
+     * <li>the property name is null or empty</li>
+     * <li>if a security manager exists and its checkPropertyAccess method doesn't allow access to the specified system property.</li>
+     * </ul>
+     *
+     * @param name the name of the system property.
+     * @param def  the default value
+     * @return value of the Boolean system property or specified {@code def} value
+     */
+    public static boolean getBooleanSafe(String name, boolean def) {
         try {
             return Boolean.getBoolean(name);
         } catch (SecurityException ignore) {
             // suppress exception
         }
-        return false;
+        return def;
     }
 
     /**

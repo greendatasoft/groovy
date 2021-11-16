@@ -20,6 +20,10 @@ package org.codehaus.groovy.runtime.typehandling
 
 import org.junit.Test
 
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+
 import static groovy.test.GroovyAssert.shouldFail
 
 final class DefaultTypeTransformationTest {
@@ -192,6 +196,16 @@ final class DefaultTypeTransformationTest {
                 checkCompareToSymmetricSmallerThan(lower, higher)
             }
         }
+
+        // compare dates:
+        LocalDate today = LocalDate.now()
+        LocalDateTime midnight = LocalDateTime.of(today, LocalTime.MIDNIGHT);
+        assert DefaultTypeTransformation.compareTo(midnight, today) == 0
+        assert DefaultTypeTransformation.compareTo(today, midnight) == 0
+        assert DefaultTypeTransformation.compareTo(today, midnight.plusSeconds(42)) < 0
+        assert DefaultTypeTransformation.compareTo(midnight.plusMinutes(42), today) > 0
+        assert DefaultTypeTransformation.compareTo(today.minusDays(42), midnight.plusHours(42)) < 0
+        assert DefaultTypeTransformation.compareTo(midnight, today.minusDays(42)) > 0
     }
 
     @Test

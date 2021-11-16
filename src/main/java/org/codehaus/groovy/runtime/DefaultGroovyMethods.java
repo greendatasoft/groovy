@@ -128,6 +128,8 @@ import java.security.AccessController;
 import java.security.CodeSource;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -15380,6 +15382,32 @@ public class DefaultGroovyMethods extends DefaultGroovyMethodsSupport {
     public static int compareTo(Number left, Number right) {
         /** @todo maybe a double dispatch thing to handle new large numbers? */
         return NumberMath.compareTo(left, right);
+    }
+
+    /**
+     * Compares {@code LocalDateTime} and {@code LocalDate}, representing the latter as a datetime at midnight.
+     *
+     * @param left  {@link LocalDateTime}
+     * @param right {@link LocalDate}
+     * @return {@code int}, the result of the comparison
+     */
+    public static int compareTo(LocalDateTime left, LocalDate right) {
+        return compareTo(left, right.atStartOfDay());
+    }
+
+    /**
+     * Compares {@code LocalDate} and {@code LocalDateTime}, representing the first one as a datetime at midnight.
+     *
+     * @param left  {@link LocalDate}
+     * @param right {@link LocalDateTime}
+     * @return {@code int}, the result of the comparison
+     */
+    public static int compareTo(LocalDate left, LocalDateTime right) {
+        return compareTo(left.atStartOfDay(), right);
+    }
+
+    public static int compareTo(LocalDateTime left, LocalDateTime right) {
+        return left.compareTo(right);
     }
 
     /**

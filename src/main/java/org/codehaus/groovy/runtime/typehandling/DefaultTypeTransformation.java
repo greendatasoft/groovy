@@ -21,6 +21,7 @@ package org.codehaus.groovy.runtime.typehandling;
 import groovy.lang.Closure;
 import groovy.lang.GString;
 import groovy.lang.GroovyRuntimeException;
+import org.apache.groovy.util.SystemUtil;
 import org.codehaus.groovy.reflection.ReflectionCache;
 import org.codehaus.groovy.reflection.stdclasses.CachedSAMClass;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
@@ -41,6 +42,9 @@ import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -61,6 +65,14 @@ import static org.codehaus.groovy.reflection.ReflectionCache.isArray;
  * Class providing various type conversions, coercions and boxing/unboxing operations.
  */
 public class DefaultTypeTransformation {
+    /**
+     * A flag that controls dates comparing behaviour.
+     * If it is {@code true} (which is by default),
+     * then {@link LocalDate} and {@link LocalDateTime} instances are considered comparable,
+     * i.e. operators {@code <}, {@code <=}, {@code ==}, {@code >=}, {@code >} can be applied to them.
+     */
+    public static final boolean COMPARE_LOCAL_DATE_AND_DATETIME =
+            SystemUtil.getBooleanSafe("groovy.compare.local-date-and-datetime", true);
 
     protected static final Object[] EMPTY_ARGUMENTS = {};
     protected static final BigInteger ONE_NEG = new BigInteger("-1");
@@ -617,6 +629,13 @@ public class DefaultTypeTransformation {
                 return ((GString) left).compareTo(right);
             } else if (left instanceof GString && right instanceof Character) {
                 return ((GString) left).compareTo(right);
+            } else if (COMPARE_LOCAL_DATE_AND_DATETIME && left instanceof Temporal) {
+                if (left instanceof LocalDateTime && right instanceof LocalDate) {
+                    return DefaultGroovyMethods.compareTo((LocalDateTime) left, (LocalDate) right);
+                }
+                if (left instanceof LocalDate && right instanceof LocalDateTime) {
+                    return DefaultGroovyMethods.compareTo((LocalDate) left, (LocalDateTime) right);
+                }
             }
             if (!equalityCheckOnly || left.getClass().isAssignableFrom(right.getClass())
                     || (right.getClass() != Object.class && right.getClass().isAssignableFrom(left.getClass()) //GROOVY-4046
